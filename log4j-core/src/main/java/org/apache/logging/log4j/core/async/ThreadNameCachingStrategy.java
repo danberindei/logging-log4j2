@@ -17,6 +17,7 @@
 
 package org.apache.logging.log4j.core.async;
 
+import org.apache.logging.log4j.core.util.JavaVersion;
 import org.apache.logging.log4j.status.StatusLogger;
 import org.apache.logging.log4j.util.PropertiesUtil;
 
@@ -48,8 +49,9 @@ public enum ThreadNameCachingStrategy { // LOG4J2-467
     abstract String getThreadName();
 
     public static ThreadNameCachingStrategy create() {
+        ThreadNameCachingStrategy defaultStrategy = threadGetNameAllocatesString() ? CACHED : UNCACHED;
         final String name = PropertiesUtil.getProperties().getStringProperty("AsyncLogger.ThreadNameStrategy",
-                CACHED.name());
+                defaultStrategy.toString());
         try {
             final ThreadNameCachingStrategy result = ThreadNameCachingStrategy.valueOf(name);
             LOGGER.debug("AsyncLogger.ThreadNameStrategy={}", result);
@@ -58,5 +60,9 @@ public enum ThreadNameCachingStrategy { // LOG4J2-467
             LOGGER.debug("Using AsyncLogger.ThreadNameStrategy.CACHED: '{}' not valid: {}", name, ex.toString());
             return CACHED;
         }
+    }
+
+    static boolean threadGetNameAllocatesString() {
+        return !JavaVersion.atLeast(1, 8, 0, 102);
     }
 }

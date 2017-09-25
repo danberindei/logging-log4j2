@@ -16,11 +16,13 @@
  */
 package org.apache.logging.log4j.core.async;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
 import org.apache.logging.log4j.categories.AsyncLoggers;
+import org.apache.logging.log4j.core.util.JavaVersion;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
-import static org.junit.Assert.*;
 
 @Category(AsyncLoggers.class)
 public class AsyncLoggerThreadNameStrategyTest {
@@ -28,7 +30,10 @@ public class AsyncLoggerThreadNameStrategyTest {
     @Test
     public void testDefaultThreadNameIsCached() throws Exception {
         final ThreadNameCachingStrategy tns = ThreadNameCachingStrategy.create();
-        assertSame(ThreadNameCachingStrategy.CACHED, tns);
+        ThreadNameCachingStrategy strategy = ThreadNameCachingStrategy.threadGetNameAllocatesString() ?
+                    ThreadNameCachingStrategy.CACHED :
+                    ThreadNameCachingStrategy.UNCACHED;
+        assertSame(strategy, tns);
     }
 
     @Test
